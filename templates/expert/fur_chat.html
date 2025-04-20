@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expert Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #28a745;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #91EAE4 0%, #86A8E7 50%, #7F7FD5 100%);
+            color: var(--dark-color);
+            line-height: 1.6;
+            height: 100vh;
+        }
+
+        .container-fluid {
+            height: 100%;
+            padding: 0;
+        }
+
+        .row {
+            height: 100%;
+            margin: 0;
+        }
+
+        /* Contacts Sidebar */
+        .chat {
+            height: 100%;
+            padding: 0;
+        }
+
+        .contacts_card {
+            height: 100%;
+            border-radius: 0;
+            background-color: white;
+            border-right: 1px solid #eee;
+        }
+
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 0;
+            padding: 15px;
+        }
+
+        .card-header a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .card-body.contacts_body {
+            padding: 0;
+            overflow-y: auto;
+            height: calc(100% - 120px);
+        }
+
+        .contacts {
+            list-style: none;
+            padding: 0;
+        }
+
+        .contacts li {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .contacts li:hover {
+            background-color: #f8f9fa;
+        }
+
+        .d-flex.bd-highlight {
+            align-items: center;
+        }
+
+        .img_cont {
+            position: relative;
+            margin-right: 12px;
+        }
+
+        .user_img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #f5f6fa;
+        }
+
+        .online_icon {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 15px;
+            height: 15px;
+            background-color: #4cd137;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .user_info {
+            flex: 1;
+        }
+
+        .user_info span {
+            font-weight: 500;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .user_info p {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin: 0;
+        }
+
+        /* Chat Area */
+        .chat {
+            height: 100%;
+            padding: 0;
+        }
+
+        .card {
+            height: 100%;
+            border-radius: 0;
+            background-color: white;
+        }
+
+        .msg_head {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .d-flex.bd-highlight {
+            align-items: center;
+        }
+
+        .img_cont {
+            position: relative;
+            margin-right: 12px;
+        }
+
+        .user_img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #f5f6fa;
+        }
+
+        .online_icon {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 15px;
+            height: 15px;
+            background-color: #4cd137;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .user_info {
+            flex: 1;
+        }
+
+        .msg_card_body {
+            padding: 20px;
+            overflow-y: auto;
+            height: calc(100% - 120px);
+            background-color: #f5f7fb;
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar for chat area */
+        .msg_card_body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .msg_card_body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .msg_card_body::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+        .msg_card_body::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Messages */
+        .d-flex.justify-content-start.mb-4 {
+            margin-bottom: 15px;
+            justify-content: flex-start;
+        }
+
+        .d-flex.justify-content-end.mb-4 {
+            margin-bottom: 15px;
+            justify-content: flex-end;
+        }
+
+        .img_cont_msg {
+            margin-right: 10px;
+        }
+
+        .user_img_msg {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #f5f6fa;
+        }
+
+        .msg_cotainer {
+            background-color: white;
+            padding: 12px 15px;
+            border-radius: 18px;
+            border-top-left-radius: 0;
+            max-width: 70%;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .msg_cotainer_send {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 15px;
+            border-radius: 18px;
+            border-top-right-radius: 0;
+            max-width: 70%;
+        }
+
+        /* Input Area */
+        .card-footer {
+            background-color: white;
+            border-top: 1px solid #eee;
+            padding: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .type_msg {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            resize: none;
+            height: 60px;
+            background-color: rgba(0,0,0,0.03);
+        }
+
+        .input-group-text {
+            background-color: rgba(0,0,0,0.03);
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            padding: 0 15px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        .send_btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            padding: 0 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            height: 60px;
+        }
+
+        .send_btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .attach_btn {
+            border-radius: var(--border-radius) 0 0 var(--border-radius);
+        }
+
+        /* Chat Button Styles */
+        .btn-info {
+            background-color: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            min-width: 70px;
+        }
+
+        .btn-info:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .btn-info:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Home Button */
+        .home-button {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 30px;
+            box-shadow: var(--box-shadow);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .home-button:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .contacts_card {
+                height: 40vh;
+            }
+
+            .chat {
+                height: 60vh;
+            }
+
+            .home-button {
+                bottom: 10px;
+                left: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid h-100">
+        <div class="row justify-content-center h-100">
+            <div class="col-md-4 col-xl-3 chat">
+                <div class="card mb-sm-3 mb-md-0 contacts_card">
+                    <div class="card-header">
+                        <div class="input-group">
+                            <a href="/expert_home" style="color: white"><i class="fas fa-arrow-left"></i></a>
+                        </div>
+                    </div>
+                    <div class="card-body contacts_body" id="tb1">
+                        <input type="hidden" name="d" id="d" value="{{ toid }}" />
+                        <input type="hidden" name="textfield2" id="rece" />
+                        <!-- Contacts will be loaded here -->
+                    </div>
+                    <div class="card-footer"></div>
+                </div>
+            </div>
+            <div class="col-md-8 col-xl-6 chat">
+                <div class="card">
+                    <div class="card-header msg_head">
+                        <div class="d-flex bd-highlight">
+                            <div class="img_cont" id="iiim">
+                                <a href="/councillor_view_profile"><img src="{{ photo }}" class="rounded-circle user_img"></a>
+                                <span class="online_icon"></span>
+                            </div>
+                            <div class="user_info" id="nnnm">
+                                <table>
+                                    <tr><td><input disabled type="" class="btn btn-outline-light" value="{{ name }}"></td></tr>
+                                </table>
+                            </div>
+                        </div>
+{#                        <span id="action_menu_btn"><i class="fas fa-ellipsis-v"></i></span>#}
+                    </div>
+                    <div class="card-body msg_card_body" id="send1">
+                        <!-- Messages will appear here -->
+                    </div>
+                    <div class="card-footer">
+                        <div class="input-group">
+                            <div class="input-group-append">
+                                <span class="input-group-text attach_btn"><i class="fas fa-paperclip"></i></span>
+                            </div>
+                            <textarea name="" id="textfield" class="form-control type_msg" placeholder="Type your message..."></textarea>
+                            <div class="input-group-append">
+                                <input type="submit" class="input-group-text send_btn" value="Send" id="button">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{#    <button type="button" class="home-button" onclick="window.location.href='/expert_home'">#}
+{#        <i class="fas fa-home"></i>#}
+{#    </button>#}
+
+    <!-- Your original scripts -->
+    <script src="/static/chat_style/jquery.min.js"></script>
+    <script src="/static/chat_style/bootstrap.min.js"></script>
+    <script src="/static/chat_style/jquery.mCustomScrollbar.min.js"></script>
+    <script src="/static/jquery.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#action_menu_btn').click(function(){
+                $('.action_menu').toggle();
+            });
+        });
+
+        function test() {
+            $("#button").show();
+            $("#textfield").show();
+            var uid = $("#rece").val();
+            var dlid = $("#doctorloginid").val();
+            $("#rece").val(uid);
+            var senid = $("#rece").val();
+            var uu = $("#d").val();
+            var senid = $("#rece").val();
+            $.ajax({
+                url: "/coun_msgExpert/" + senid,
+                type: "GET",
+                data: {},
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: function(dat) {
+                    var data = dat["data"];
+                    $("#send1").text("");
+                    var len = data.length;
+                    for(var i = 0; i < len; i++) {
+                        var rid = data[i]['chat_id'];
+                        var type = data[i]['from_id'];
+                        var mesg = data[i]['msg'];
+                        var sendid = data[i]['date'];
+
+                        if (type == senid) {
+                            $("#send1").append("<div class='d-flex justify-content-start mb-4'><div class='img_cont_msg'></div><div class='msg_cotainer'>" + mesg + "</div></div>");
+                        } else {
+                            $("#send1").append("<div class='d-flex justify-content-end mb-4'><div class='msg_cotainer_send'>" + mesg + "</div></div>");
+                        }
+                    }
+                    // Auto-scroll to bottom of chat
+                    var msgCardBody = $(".msg_card_body");
+                    msgCardBody.scrollTop(msgCardBody[0].scrollHeight);
+                },
+                error: function(ts) {
+                    console.log(ts);
+                }
+            });
+        }
+
+        $.ajax({
+            url: "/chatviewExpert",
+            type: "POST",
+            data: {},
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function(dat) {
+                $("#button").hide();
+                $("#textfield").hide();
+                var data = dat;
+                var len = data.length;
+                for (var i = 0; i < len; i++) {
+                    var name = data[i]['name'];
+                    var image = data[i]['photo'];
+                    var email = data[i]['email'];
+                    var cou = data[i]['pp'] + "";
+                    var id = data[i]['loginid'];
+
+                    if (cou == "0") {
+                        $("#tb1").append("<div class='contacts'><li class='active'><div class='d-flex bd-highlight'><div class='img_cont'><img src=" + image + " class='rounded-circle user_img'><span class='online_ico'></span></div><div class='user_info'><span>" + name + "</span><p>" + email + "</p></div><div align='right'>" +
+                            "<input type='submit' name='" + id + "' value='chat' id='i' class='btn btn-info'></div></div></li></div>");
+                    } else {
+                        $("#tb1").append("<div class='contacts'><li class='active'><div class='d-flex bd-highlight'><div class='img_cont'><img src=" + image + " class='rounded-circle user_img'><span class='online_icon'></span></div><div class='user_info'><span>" + name + " <span class='online_ico'></span>(" + cou + ")</span><p>" + email + "</p> </div><div align='right'>" +
+                            "<input type='submit' name='" + id + "' value='chat' id='i' class='btn btn-info'></div></div></li></div>");
+                    }
+                }
+            },
+            error: function(ts) {
+                console.log(ts);
+            }
+        });
+
+        $(document).on('click', '#i', function () {
+            $("#button").show();
+            $("#textfield").show();
+            var uid = $(this).attr("name"); // Get the user ID from the button's "name" attribute
+            var dlid = $("#doctorloginid").val();
+            repeatEverySecond();
+            $("#rece").val(uid);
+            var uu = $("#d").val();
+
+            $.ajax({
+                url: "/coun_msgExpert/" + uid,
+                type: "GET",
+                data: {},
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: function(dat) {
+                    var data = dat["data"];
+                    var name = dat["name"];
+                    var image = dat["photo"];
+
+                    $("#iiim").text("");
+                    $("#nnnm").text("");
+                    $("#iiim").append("<img src=" + image + " class='rounded-circle user_img'>");
+                    $("#nnnm").append("<span style='color: black'>Chat with " + name + "</span>");
+                    $("#send1").text("");
+                    var len = data.length;
+                    for (var i = 0; i < len; i++) {
+                        var rid = data[i]['chat_id'];
+                        var type = data[i]['from_id'];
+                        var mesg = data[i]['msg'];
+                        var sendid = data[i]['date'];
+
+                        if (type == uid) {
+                            $("#send1").append("<div class='d-flex justify-content-start mb-4'><div class='img_cont_msg'></div><div class='msg_cotainer'>" + mesg + "</div></div>");
+                        } else {
+                            $("#send1").append("<div class='d-flex justify-content-end mb-4'><div class='msg_cotainer_send'>" + mesg + "</div></div>");
+                        }
+                    }
+
+                    // Auto-scroll to bottom of chat
+                    var msgCardBody = $(".msg_card_body");
+                    msgCardBody.scrollTop(msgCardBody[0].scrollHeight);
+
+                    // Scroll to the chat interface smoothly
+                    $('.msg_card_body')[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                },
+                error: function(ts) {
+                    console.log(ts);
+                }
+            });
+        });
+
+        $("#button").click(function() {
+            var recevid = $("#doctorloginid").val();
+            var msg = $("#textfield").val();
+            var senid = $("#rece").val();
+
+            $.ajax({
+                url: "/coun_insert_chatExpert/" + encodeURIComponent(msg) + "/" + senid,
+                type: "GET",
+                success: function() {
+                    $("#textfield").val("");
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+
+        function repeatEverySecond() {
+            intervalID = setInterval(test, 1000);
+        }
+    </script>
+</body>
+</html>

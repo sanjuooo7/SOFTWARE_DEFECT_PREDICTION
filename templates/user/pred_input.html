@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Metrics Analyzer</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
+
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --danger-color: #f72585;
+            --success-color: #4cc9f0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .header h2 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 1rem 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #495057;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ced4da;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+
+        .form-control[readonly] {
+            background-color: #f8f9fa;
+        }
+
+        .CodeMirror {
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            height: auto;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .CodeMirror-focused {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+
+        .btn {
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        .btn-danger:hover {
+            background-color: #e5177b;
+            border-color: #e5177b;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(67, 97, 238, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2><i class="fas fa-code"></i> Code Metrics Analyzer</h2>
+            <p>Analyze your code quality and complexity metrics</p>
+        </div>
+
+        <form method="post" action="/pred_input_post">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-code me-2"></i>Code Editor
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="code"><i class="fas fa-file-code me-2"></i>Enter Your Source Code</label>
+                        <div style="width: 100%; height: 300px; overflow: auto; border-radius: 8px;">
+                            <textarea id="code" name="code" style="width: 100%; height: 100%; white-space: pre;"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h4 class="section-title"><i class="fas fa-calculator me-2"></i>Basic Metrics</h4>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="loc">LOC (Lines of Code)</label>
+                                        <input type="number" id="loc" name="loc" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="lOCode">Lines of Code</label>
+                                        <input type="number" id="lOCode" name="lOCode" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="lOComment">Lines of Comments</label>
+                                        <input type="number" id="lOComment" name="lOComment" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="lOBlank">Blank Lines</label>
+                                        <input type="number" id="lOBlank" name="lOBlank" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="lOCodeAndComment">Code & Comment Lines</label>
+                                <input type="number" id="lOCodeAndComment" name="lOCodeAndComment" class="form-control" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="uniq_Op">Unique Operators</label>
+                                        <input type="number" id="uniq_Op" name="uniq_Op" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="uniq_Opnd">Unique Operands</label>
+                                        <input type="number" id="uniq_Opnd" name="uniq_Opnd" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="total_Op">Total Operators</label>
+                                        <input type="number" id="total_Op" name="total_Op" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="total_Opnd">Total Operands</label>
+                                        <input type="number" id="total_Opnd" name="total_Opnd" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="branchCount">Branch Count</label>
+                                <input type="number" id="branchCount" name="branchCount" class="form-control" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h4 class="section-title"><i class="fas fa-chart-line me-2"></i>Advanced Metrics</h4>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="v_g">Cyclomatic Complexity</label>
+                                        <input type="text" id="v_g" name="v_g" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="ev_g">Essential Complexity</label>
+                                        <input type="text" id="ev_g" name="ev_g" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="iv_g">Design Complexity</label>
+                                <input type="text" id="iv_g" name="iv_g" class="form-control" readonly>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="n">Total Operators + Operands</label>
+                                        <input type="text" id="n" name="n" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="l">Program Length</label>
+                                        <input type="text" id="l" name="l" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="v">Halstead Volume</label>
+                                        <input type="text" id="v" name="v" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="e">Halstead Effort</label>
+                                        <input type="text" id="e" name="e" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="b">Estimated Bugs</label>
+                                        <input type="text" id="b" name="b" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="t">Time Estimate (sec)</label>
+                                        <input type="text" id="t" name="t" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="d">Halstead Difficulty</label>
+                                        <input type="text" id="d" name="d" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="i">Halstead Intelligence</label>
+                                        <input type="text" id="i" name="i" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-chart-bar"></i> Analyze & Predict
+                </button>
+                <button type="button" class="btn btn-danger" id="clearBtn">
+                    <i class="fas fa-trash-alt"></i> Clear
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- CodeMirror JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Initialize CodeMirror editor
+        var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+            mode: "python",
+            theme: "dracula",
+            lineNumbers: true,
+            matchBrackets: true,
+            autoCloseBrackets: true,
+            indentUnit: 4,
+            tabSize: 4,
+            extraKeys: {
+                "Tab": function(cm) {
+                    if (cm.somethingSelected()) {
+                        cm.indentSelection("add");
+                    } else {
+                        cm.replaceSelection(cm.getOption("indentWithTabs") ? "\t" :
+                            Array(cm.getOption("indentUnit") + 1).join(" "), "end", "+input");
+                    }
+                }
+            }
+        });
+
+        // Clear button functionality
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            editor.setValue('');
+            document.querySelectorAll('input[type="number"], input[type="text"]').forEach(input => {
+                input.value = '';
+            });
+        });
+
+        // [Previous metric calculation functions remain unchanged...]
+        function calculateMetrics() {
+            let uniq_Op = parseFloat(document.getElementById('uniq_Op').value) || 0;
+            let uniq_Opnd = parseFloat(document.getElementById('uniq_Opnd').value) || 0;
+            let total_Op = parseFloat(document.getElementById('total_Op').value) || 0;
+            let total_Opnd = parseFloat(document.getElementById('total_Opnd').value) || 0;
+            let branchCount = parseFloat(document.getElementById('branchCount').value) || 0;
+
+            // Cyclomatic Complexity (v_g)
+            let n = total_Op + total_Opnd; // Program Length
+            let l = uniq_Op + uniq_Opnd;   // Program Vocabulary
+            let v = n > 0 ? n * Math.log2(n) : 0;  // Volume
+            let d = (uniq_Op > 0 && uniq_Opnd > 0) ? (uniq_Op / 2) * (total_Opnd / uniq_Opnd) : 0;  // Difficulty
+            let i = d > 0 ? v / d : 0;  // Intelligence
+            let e = v * d;  // Effort
+            let b = v / 3000;  // Estimated Bugs
+            let t = e / 18;  // Time in seconds
+            let v_g = (e - n) + 2;
+            let ev_g = v_g / 2;
+            let iv_g = v_g - ev_g;
+
+            // Ensure no Infinity or NaN values
+            document.getElementById('v_g').value = isFinite(v_g) ? v_g.toFixed(2) : 0;
+            document.getElementById('ev_g').value = isFinite(ev_g) ? ev_g.toFixed(2) : 0;
+            document.getElementById('iv_g').value = isFinite(iv_g) ? iv_g.toFixed(2) : 0;
+            document.getElementById('n').value = isFinite(n) ? n : 0;
+            document.getElementById('l').value = isFinite(l) ? l : 0;
+            document.getElementById('v').value = isFinite(v) ? v.toFixed(2) : 0;
+            document.getElementById('d').value = isFinite(d) ? d.toFixed(2) : 0;
+            document.getElementById('i').value = isFinite(i) ? i.toFixed(2) : 0;
+            document.getElementById('e').value = isFinite(e) ? e.toFixed(2) : 0;
+            document.getElementById('b').value = isFinite(b) ? b.toFixed(5) : 0;
+            document.getElementById('t').value = isFinite(t) ? t.toFixed(2) : 0;
+        }
+
+        function updateMetrics() {
+            let codeText = editor.getValue();
+            let lines = codeText.split(/\r\n|\r|\n/);
+
+            // Calculate LOC
+            document.getElementById("loc").value = lines.length;
+
+            // Calculate LOCode, LOComment, LOBlank, LOCodeAndComment
+            let locCode = 0, locComment = 0, locBlank = 0, locCodeAndComment = 0;
+            lines.forEach(line => {
+                line = line.trim();
+                if (line === "") {
+                    locBlank++;
+                } else if (line.startsWith("#") || line.startsWith("//")) {
+                    locComment++;
+                } else if (line.includes("#") || line.includes("//")) {
+                    locCodeAndComment++;
+                } else {
+                    locCode++;
+                }
+            });
+            document.getElementById("lOCode").value = locCode;
+            document.getElementById("lOComment").value = locComment;
+            document.getElementById("lOBlank").value = locBlank;
+            document.getElementById("lOCodeAndComment").value = locCodeAndComment;
+
+            // Calculate Unique and Total Operators/Operands (Example logic)
+            let operators = ["+", "-", "*", "/", "=", "==", "!=", "<", ">", "<=", ">="];
+            let operands = [];
+            let uniqueOperators = new Set();
+            let uniqueOperands = new Set();
+            let totalOperators = 0;
+            let totalOperands = 0;
+
+            lines.forEach(line => {
+                operators.forEach(op => {
+                    if (line.includes(op)) {
+                        uniqueOperators.add(op);
+                        totalOperators += line.split(op).length - 1;
+                    }
+                });
+                // Extract operands (example: variables, numbers)
+                let words = line.split(/\W+/);
+                words.forEach(word => {
+                    if (word && !operators.includes(word)) {
+                        uniqueOperands.add(word);
+                        totalOperands++;
+                    }
+                });
+            });
+
+            document.getElementById("uniq_Op").value = uniqueOperators.size;
+            document.getElementById("uniq_Opnd").value = uniqueOperands.size;
+            document.getElementById("total_Op").value = totalOperators;
+            document.getElementById("total_Opnd").value = totalOperands;
+
+            // Calculate Branch Count (Example logic)
+            let branchKeywords = ["if", "else", "for", "while", "switch", "case"];
+            let branchCount = 0;
+            lines.forEach(line => {
+                branchKeywords.forEach(keyword => {
+                    if (line.includes(keyword)) {
+                        branchCount++;
+                    }
+                });
+            });
+            document.getElementById("branchCount").value = branchCount;
+
+            // Recalculate derived metrics
+            calculateMetrics();
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll("input").forEach(input => {
+                input.addEventListener("input", function() {
+                    calculateMetrics();
+                });
+            });
+
+            // Add event listener to CodeMirror editor
+            editor.on("change", function() {
+                updateMetrics();
+            });
+
+            // Initial metrics calculation
+            updateMetrics();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Analysis Results | Software Defect Prediction</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --danger-color: #f72585;
+            --warning-color: #f8961e;
+            --info-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .results-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            flex: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .header h2 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .result-card-header {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            padding: 1rem 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .result-value {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .prediction-result {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .false-result {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            border-left: 5px solid #28a745;
+        }
+
+        .true-result {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border-left: 5px solid #dc3545;
+        }
+
+        .explanation-section {
+            margin-top: 2rem;
+        }
+
+        .explanation-card {
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 5px solid;
+        }
+
+        .true-explanation {
+            border-left-color: #28a745;
+        }
+
+        .false-explanation {
+            border-left-color: #dc3545;
+        }
+
+        .explanation-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .explanation-title i {
+            margin-right: 0.5rem;
+        }
+
+        .explanation-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .explanation-list li {
+            margin-bottom: 0.75rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .explanation-list li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .action-buttons {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 0 20px;
+            z-index: 1000;
+        }
+
+        .action-btn {
+            border-radius: 30px;
+            padding: 12px 24px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .action-btn i {
+            margin-right: 8px;
+        }
+
+        .btn-chat {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-chat:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-home {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-home:hover {
+            background-color: #3aa8d8;
+            transform: translateY(-2px);
+        }
+
+        .btn-back {
+            background-color: var(--info-color);
+            color: white;
+        }
+
+        .btn-back:hover {
+            background-color: #3a7bbf;
+            transform: translateY(-2px);
+        }
+
+        .btn-print {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .btn-print:hover {
+            background-color: #e07c0c;
+            transform: translateY(-2px);
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .print-area, .print-area * {
+                visibility: visible;
+            }
+            .print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white;
+                padding: 20px;
+            }
+            .action-buttons {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .results-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+
+            .action-buttons {
+                flex-wrap: wrap;
+                gap: 10px;
+                padding: 0 10px;
+            }
+
+            .action-btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+
+            .prediction-result {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="results-container">
+        <div class="header">
+            <h2><i class="fas fa-chart-bar"></i> Code Analysis Results</h2>
+            <p>Detailed metrics and predictions for your code</p>
+        </div>
+
+        <div id="resultSection" class="print-area">
+            <div class="result-card">
+                <div class="result-card-header">
+                    <i class="fas fa-calculator"></i> Computed Metrics
+                </div>
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>LOC (Lines of Code)</td><td class="result-value">{{ loc }}</td></tr>
+                            <tr><td>Lines of Actual Code</td><td class="result-value">{{ lOCode }}</td></tr>
+                            <tr><td>Lines Containing Comments</td><td class="result-value">{{ lOComment }}</td></tr>
+                            <tr><td>Blank Lines</td><td class="result-value">{{ lOBlank }}</td></tr>
+                            <tr><td>Code & Comment Lines</td><td class="result-value">{{ lOCodeAndComment }}</td></tr>
+                            <tr><td>Unique Operators</td><td class="result-value">{{ uniq_Op }}</td></tr>
+                            <tr><td>Unique Operands</td><td class="result-value">{{ uniq_Opnd }}</td></tr>
+                            <tr><td>Total Operators</td><td class="result-value">{{ total_Op }}</td></tr>
+                            <tr><td>Total Operands</td><td class="result-value">{{ total_Opnd }}</td></tr>
+                            <tr><td>Branch Count</td><td class="result-value">{{ branchCount }}</td></tr>
+                            <tr><td>Cyclomatic Complexity</td><td class="result-value">{{ v_g }}</td></tr>
+                            <tr><td>Essential Complexity</td><td class="result-value">{{ ev_g }}</td></tr>
+                            <tr><td>Design Complexity</td><td class="result-value">{{ iv_g }}</td></tr>
+                            <tr><td>Total Operators + Operands</td><td class="result-value">{{ n }}</td></tr>
+                            <tr><td>Halstead Volume</td><td class="result-value">{{ v }}</td></tr>
+                            <tr><td>Halstead Program Length</td><td class="result-value">{{ l }}</td></tr>
+                            <tr><td>Halstead Effort</td><td class="result-value">{{ e }}</td></tr>
+                            <tr><td>Halstead Bugs Estimate</td><td class="result-value">{{ b }}</td></tr>
+                            <tr><td>Halstead Difficulty</td><td class="result-value">{{ d }}</td></tr>
+                            <tr><td>Halstead Time Estimate</td><td class="result-value">{{ t }}</td></tr>
+                            <tr><td>Halstead Intelligence</td><td class="result-value">{{ i }}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="prediction-result {% if res == 'True' %}true-result{% else %}false-result{% endif %}">
+                <i class="fas fa-{% if res == 'True' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                Prediction: {{ res }}
+            </div>
+
+            <div class="explanation-section">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="explanation-card true-explanation">
+                            <div class="explanation-title true-title">
+                                <i class="fas fa-check-circle"></i> If Prediction = True (Defect-Free)
+                            </div>
+                            <ul class="explanation-list">
+                                <li>The model believes the code is unlikely to have critical bugs</li>
+                                <li>Does NOT mean the code is perfect</li>
+                                <li>Could still have design flaws or inefficiencies</li>
+                                <li>Doesn't guarantee security issues are absent</li>
+                                <li>Refactoring may still be needed for maintainability</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="explanation-card false-explanation">
+                            <div class="explanation-title false-title">
+                                <i class="fas fa-exclamation-circle"></i> If Prediction = False (Defective)
+                            </div>
+                            <ul class="explanation-list">
+                                <li>The model detects high risk of defects in the code</li>
+                                <li>Likely issues with code complexity</li>
+                                <li>Potential untested edge cases</li>
+                                <li>Similar code had bugs historically</li>
+                                <li>Needs manual review and testing</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <a href="/chat_with_expert2" class="action-btn btn-chat">
+            <i class="fas fa-comments"></i> Chat with Experts
+        </a>
+        <a href="/user_home" class="action-btn btn-home">
+            <i class="fas fa-home"></i> Go to Home
+        </a>
+        <a href="/pred_input" class="action-btn btn-back">
+            <i class="fas fa-redo"></i> Check Another Code
+        </a>
+        <button onclick="printResults()" class="action-btn btn-print">
+            <i class="fas fa-print"></i> Print Results
+        </button>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function printResults() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

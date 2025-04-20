@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Form | Defect Prediction System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .feedback-container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .feedback-card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-bottom: none;
+        }
+
+        .card-title {
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-title i {
+            margin-right: 10px;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .rating-section {
+            margin-bottom: 25px;
+        }
+
+        .rating-title {
+            font-weight: 500;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .star-rating {
+            display: flex;
+            justify-content: center;
+            flex-direction: row-reverse;
+            margin-bottom: 20px;
+        }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            font-size: 2rem;
+            color: #ddd;
+            cursor: pointer;
+            padding: 0 8px;
+            transition: var(--transition);
+        }
+
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: var(--warning-color);
+            transform: scale(1.1);
+        }
+
+        .rating-labels {
+            display: flex;
+            justify-content: space-between;
+            color: #6c757d;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .form-control {
+            border-radius: var(--border-radius);
+            padding: 12px 15px;
+            border: 1px solid #ced4da;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .home-button {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 30px;
+            box-shadow: var(--box-shadow);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .home-button i {
+            margin-right: 8px;
+        }
+
+        .home-button:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .feedback-container {
+                padding: 15px;
+                margin: 20px auto;
+            }
+
+            .card-body {
+                padding: 20px;
+            }
+
+            .star-rating label {
+                font-size: 1.8rem;
+                padding: 0 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="feedback-container">
+        <div class="feedback-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-comment-alt"></i> Share Your Feedback
+                </h2>
+            </div>
+            <div class="card-body">
+                <form id="feedbackForm" method="post" action="/send_feedback_post">
+                    {% csrf_token %}
+
+                    <div class="rating-section">
+                        <div class="rating-title">How satisfied are you with our service?</div>
+                        <div class="star-rating">
+                            <input type="radio" name="satisfaction" id="satisfaction-5" value="5" required>
+                            <label for="satisfaction-5" title="Excellent">&#9733;</label>
+                            <input type="radio" name="satisfaction" id="satisfaction-4" value="4" required>
+                            <label for="satisfaction-4" title="Very Good">&#9733;</label>
+                            <input type="radio" name="satisfaction" id="satisfaction-3" value="3" required>
+                            <label for="satisfaction-3" title="Good">&#9733;</label>
+                            <input type="radio" name="satisfaction" id="satisfaction-2" value="2" required>
+                            <label for="satisfaction-2" title="Fair">&#9733;</label>
+                            <input type="radio" name="satisfaction" id="satisfaction-1" value="1" required>
+                            <label for="satisfaction-1" title="Poor">&#9733;</label>
+                        </div>
+                        <div class="rating-labels">
+                            <span>Poor</span>
+                            <span>Fair</span>
+                            <span>Good</span>
+                            <span>Very Good</span>
+                            <span>Excellent</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="comments" class="form-label">Your comments:</label>
+                        <textarea class="form-control" name="comment" id="comments" rows="4"
+                                  placeholder="We'd love to hear your thoughts about our service..."></textarea>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Submit Feedback
+                        </button>
+                        <button type="reset" class="btn btn-secondary">
+                            <i class="fas fa-undo"></i> Clear Form
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" class="home-button" onclick="window.location.href='/user_home'">
+        <i class="fas fa-home"></i> Go to Home
+    </button>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

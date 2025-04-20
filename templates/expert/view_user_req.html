@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Requests</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 30px;
+        }
+        .table-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .profile-info {
+            display: flex;
+            align-items: center;
+        }
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2 class="text-center mb-4">Help Requests</h2>
+
+        <div class="mb-3">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search user by name..." onkeyup="searchUsers()">
+        </div>
+
+        <div class="table-container">
+            <table class="table table-bordered table-striped">
+                <thead class="table-primary">
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Request Details</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="userTable">
+                    <tr>
+                        <td>1</td>
+                        <td>
+                            <div class="profile-info">
+                                <img src="https://via.placeholder.com/40" class="profile-pic" alt="User Photo">
+                                <span>JohnDoe</span>
+                            </div>
+                        </td>
+                        <td>Facing login issues</td>
+                        <td><button class="btn btn-success btn-sm" onclick="startChat('JohnDoe')">Chat</button></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>
+                            <div class="profile-info">
+                                <img src="https://via.placeholder.com/40" class="profile-pic" alt="User Photo">
+                                <span>JaneSmith</span>
+                            </div>
+                        </td>
+                        <td>Need help with profile update</td>
+                        <td><button class="btn btn-success btn-sm" onclick="startChat('JaneSmith')">Chat</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function searchUsers() {
+            let input = document.getElementById("searchInput").value.toLowerCase();
+            let tableRows = document.querySelectorAll("#userTable tr");
+
+            tableRows.forEach(row => {
+                let username = row.cells[1].innerText.toLowerCase();
+                if (username.includes(input)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+
+        function startChat(username) {
+            alert("Starting chat with " + username);
+            // Here you can implement chat functionality
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications | Defect Prediction System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .notification-section {
+            background: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .section-title i {
+            margin-right: 10px;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .section-title h2 {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .notification-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .notification-table thead {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .notification-table th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .notification-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+
+        .notification-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .notification-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .sender-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .sender-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #adb5bd;
+        }
+
+        .home-button {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 30px;
+            box-shadow: var(--box-shadow);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .home-button i {
+            margin-right: 8px;
+        }
+
+        .home-button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .notification-date {
+            color: #6c757d;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 10px;
+            }
+
+            .notification-section {
+                padding: 15px;
+            }
+
+            .notification-table th,
+            .notification-table td {
+                padding: 8px 10px;
+                font-size: 0.9rem;
+            }
+
+            .notification-date {
+                white-space: normal;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1>Your Notifications</h1>
+            <p>Stay updated with important messages from experts and administrators</p>
+        </div>
+
+        <!-- Expert Notifications Section -->
+        <div class="notification-section">
+            <div class="section-title">
+                <i class="fas fa-user-tie"></i>
+                <h2>Expert Notifications</h2>
+            </div>
+
+            <table class="notification-table">
+                <thead>
+                    <tr>
+                        <th>From</th>
+                        <th>Message</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in data %}
+                    <tr>
+                        <td>
+                            <div class="sender-info">
+                                <div class="sender-avatar">{{ item.expert_id.expert_name|first|upper }}</div>
+                                <span>{{ item.expert_id.expert_name }}</span>
+                            </div>
+                        </td>
+                        <td>{{ item.notification }}</td>
+                        <td class="notification-date">{{ item.date }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="empty-state">
+                            <i class="far fa-bell-slash"></i>
+                            <p>No expert notifications available</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Admin Notifications Section -->
+        <div class="notification-section">
+            <div class="section-title">
+                <i class="fas fa-user-shield"></i>
+                <h2>Admin Notifications</h2>
+            </div>
+
+            <table class="notification-table">
+                <thead>
+                    <tr>
+                        <th>Message</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in val %}
+                    <tr>
+                        <td>{{ item.notification }}</td>
+                        <td class="notification-date">{{ item.date }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" class="empty-state">
+                            <i class="far fa-bell-slash"></i>
+                            <p>No admin notifications available</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <button type="button" class="home-button" onclick="window.location.href='/user_home'">
+        <i class="fas fa-home"></i> Go to Home
+    </button>
+</body>
+</html>
